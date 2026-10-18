@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run from the project root in DragonOS. Reception only.
+# Ejecutar desde la carpeta del proyecto en DragonOS. Solo recepción.
 set -euo pipefail
 frequency_mhz="${1:-1970}"
 duration="${2:-120}"
@@ -25,13 +25,13 @@ frequency_hz=$(python3 -c 'import sys; print(round(float(sys.argv[1])*1e6))' "$f
 {
     printf 'session=%s\n' "$session"
     printf 'frequency_hz=%s\n' "$frequency_hz"
-    printf 'receiver_label=LibreSDR Mini B220; UHD detection may report B210\n'
+    printf 'receiver_label=LibreSDR Mini B220; UHD puede identificarlo como B210\n'
     printf 'location_label=%s\n' "$point"
     printf 'wall_time_limit_seconds=%s\n' "$duration"
     printf 'started=%s\n' "$(date --iso-8601=seconds)"
-    printf 'requested_subframes=0 (unlimited; externally time bounded)\n'
-    printf 'gain=AGC default\n'
-    printf 'antenna_and_host_conditions=complete notes.md manually\n'
+    printf 'requested_subframes=0 (sin límite; duración limitada externamente)\n'
+    printf 'gain=AGC predeterminado\n'
+    printf 'antenna_and_host_conditions=completar notes.md manualmente\n'
 } > "$session_dir/metadata.txt"
 printf 'Sesion: %s\nLimite de tiempo TOTAL, incluye busqueda de celda: %s s\n' "$session_dir" "$duration"
 set +e

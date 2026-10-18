@@ -1,28 +1,42 @@
-# LTE FALCON session: pilot_1970
+# Informe del piloto a 1970 MHz
 
-Decoded DCI log summary for **1970 MHz**.
+Este informe describe los resultados agregados publicados para la sesión `pilot_1970`.
 
-- Valid records: 198; invalid rows: 9 (schema errors: 1).
-- Timestamp span: 120.542 seconds, from 1792351007.062030 to 1792351127.603714.
-- Total observed PRB assignments: 4042; DCI records: 198.
-- Distinct observed nonreserved RNTIs: 45. This excludes RNTI 0 and identifiers >=65524, is approximate with respect to reserved identifier usage, and does not classify or count all C-RNTIs, devices, or users.
+| Indicador | Valor |
+|---|---|
+| Registros válidos | 198 |
+| Filas descartadas | 9 |
+| Filas con cantidad de campos incorrecta | 1 |
+| Lapso entre registros válidos extremos | 120,542 segundos |
+| Suma de PRB de las asignaciones observadas | 4042 |
+| Identificadores distintos tras el filtro | 45 |
+| Ventanas de un segundo con registros | 44 |
 
-Missing activity windows have no CSV row and are shown as gaps in the chart. PRB assignments are observed decoded grant allocations, not utilization, throughput, congestion, or delivered traffic.
+El análisis contabilizó 207 líneas en total, sin líneas vacías ni comentarios. El conteo corresponde al archivo procesado por el analizador; puede diferir de `wc -l` si la última línea no termina con un salto de línea. No se ha verificado aquí esa causa en el archivo original.
 
-## Figures and data
+## Actividad temporal
 
-- Activity: [activity.svg](../../figures/pilot_1970/activity.svg)
-- MCS distribution: [mcs.svg](../../figures/pilot_1970/mcs.svg). MCS labels are counts of decoded records, not direct channel-quality measurements.
-- Window aggregates: [activity.csv](../../data/processed/pilot_1970/activity.csv)
-- MCS counts: [mcs_distribution.csv](../../data/processed/pilot_1970/mcs_distribution.csv)
+La [figura de actividad](../../figures/pilot_1970/activity.svg) muestra recursos asignados, cantidad de mensajes e identificadores distintos por ventana. Los espacios sin trazado representan intervalos sin registros y no permiten concluir que la celda estuvo inactiva.
 
-## Synthetic record-removal sensitivity experiment
+La suma de PRB describe asignaciones decodificadas, no ocupación porcentual ni tráfico entregado. Los 45 identificadores corresponden al filtro que excluye 0 y valores desde 65524; no equivalen a 45 personas ni a todos los equipos conectados.
 
-A fixed-seed Bernoulli experiment removes decoded records at the listed rates and compares total PRB assignments with the baseline. This is synthetic missing decoded records, not real subframes, an RF model, or an anomaly detector. Results use one seed and are exploratory, not an accuracy estimate.
-- [Synthetic record-removal chart](../../figures/pilot_1970/synthetic_record_removal.svg)
-- [Synthetic record-removal values](../../data/processed/pilot_1970/synthetic_record_removal.csv)
+## Distribución de MCS
 
-## Capture notes
+La [distribución MCS](../../figures/pilot_1970/mcs.svg) cuenta qué índices aparecen en registros de subida y bajada. Permite comparar las asignaciones observadas, pero no determina por sí sola la calidad del canal.
 
-Input parsing counted 0 comment lines and 0 blank lines.
-No recognized skipped-subframe summary was supplied from the console.
+## Sensibilidad a registros faltantes
+
+La [figura del experimento](../../figures/pilot_1970/synthetic_record_removal.svg) compara el total de PRB conservados al eliminar registros con probabilidades del 0 %, 10 %, 30 % y 50 %, usando semilla fija.
+
+Es una prueba sintética sobre registros ya decodificados. No reproduce pérdidas reales de subtramas ni errores RF. Una única semilla ofrece una realización reproducible, no una estimación de precisión del sistema.
+
+## Calidad de la adquisición
+
+No se obtuvo un resumen reconocible de subtramas omitidas a partir de la consola suministrada al análisis. No se publica un porcentaje de omisión para esta sesión. El lapso de 120,542 segundos entre registros extremos tampoco demuestra recepción continua.
+
+## Datos consultables
+
+- [Resumen de sesión](../../data/processed/pilot_1970/summary.json).
+- [Actividad por ventana](../../data/processed/pilot_1970/activity.csv).
+- [Conteos MCS](../../data/processed/pilot_1970/mcs_distribution.csv).
+- [Escenarios de eliminación](../../data/processed/pilot_1970/synthetic_record_removal.csv).

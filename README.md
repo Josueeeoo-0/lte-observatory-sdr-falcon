@@ -1,144 +1,203 @@
 # Observatorio LTE con SDR y FALCON
 
-**Actividad de recursos observada a 1970 MHz y sensibilidad del analisis a registros faltantes.**
+**Recepción a 1970 MHz, análisis de actividad y evaluación de registros faltantes.**
 
-Proyecto experimental de Josue Giraldo Moya. Combina recepcion SDR, decodificacion del canal de control LTE mediante FALCON y analisis reproducible en Python. Las figuras y tablas se generan localmente a partir de cada registro; este repositorio no presupone un resultado de recepcion ni una precision demostrada.
+Este proyecto utiliza un receptor SDR y FALCON para observar mensajes de control de una celda LTE. Un programa en Python organiza esos registros en intervalos de un segundo y genera gráficas para interpretar la medición.
 
-## Pregunta experimental
+El objetivo es conocer qué se observa y cómo cambian los indicadores cuando faltan datos. Los archivos originales permanecen en el equipo; el repositorio contiene resultados agregados.
 
-¿Como describir la actividad LTE observada y cuanto cambian sus indicadores cuando faltan registros decodificados?
+## Cómo funciona
 
 ```mermaid
 flowchart LR
-    A[LibreSDR Mini B220] --> B[FALCON / PDCCH]
-    B --> C[DCI y consola locales]
-    C --> D[Validacion del formato]
-    D --> E[Agregacion temporal]
-    E --> F[Figuras y reporte]
-    D --> G[Eliminacion sintetica de registros]
-    G --> H[Analisis de sensibilidad]
+    A[Receptor SDR] --> B[FALCON]
+    B --> C[Registros de control LTE]
+    C --> D[Validación y análisis]
+    D --> E[Gráficas e informe]
+    D --> F[Prueba con registros faltantes]
 ```
 
-## Estado y evidencia inicial
+![Montaje del proyecto](docs/images/foto1.png)
 
-Las capturas de pantalla de la sesion piloto muestran:
+## Conceptos para interpretar los datos
 
-| Elemento | Evidencia disponible |
+| Término | Significado |
 |---|---|
-| Frecuencia del comando y sintonizacion | 1970 MHz |
-| Version declarada por FalconEye | `6c518d6+`, rama master; `+` forma parte de la version mostrada |
-| Registros del piloto | `wc -l` reporto 206 lineas; la validez se verifica con el analizador |
-| Archivo estadistico | `stats.txt` vacio; consultar `console.log` |
-| Metadatos iniciales | Indicaban 2120 MHz por un error de transcripcion; conservar original y registrar la correccion |
-| Entorno | VM VirtualBox, 3 CPU visibles, aproximadamente 5.1 GiB RAM total, USB mostrado a 5000M |
-| Identificacion del SDR | Etiqueta del montaje LibreSDR Mini B220; UHD lo detecta como B210 |
+| SDR | Receptor cuya señal se procesa mediante software. |
+| PDCCH | Canal de control por el que la celda comunica asignaciones de recursos. |
+| DCI | Mensaje de control que describe una asignación o instrucción de la red. |
+| PRB | Bloque de recursos de radio. Aquí se suman los bloques de las asignaciones observadas. |
+| RNTI | Identificador temporal utilizado por LTE. Contarlo no equivale a contar personas. |
+| MCS | Índice relacionado con la modulación y codificación de una asignación. |
+| UL / DL | Enlace de subida / enlace de bajada. Ambos se estudian a partir del control recibido. |
 
-La tabla documenta evidencia visual. No sustituye el analisis de los archivos originales. Una captura anterior de GUI muestra 14.4547% de subtramas omitidas: no se atribuye ese porcentaje al piloto sin comprobar el registro de su propia sesion.
+## Entorno
 
-## Reproduccion
+| Componente | Configuración del piloto |
+|---|---|
+| Sistema | DragonOS en una máquina virtual VirtualBox |
+| Receptor | LibreSDR Mini B220; UHD lo identifica como B210 |
+| Frecuencia | 1970 MHz |
+| Decodificador | FalconEye `6c518d6+`, rama `master` |
+| Análisis | Python 3.10 o posterior, sin bibliotecas adicionales |
 
-Requisitos: Linux/DragonOS, Python 3.10 o posterior, FalconEye instalado. El analizador utiliza solo la biblioteca estandar; no necesita pip. Las pruebas no requieren SDR.
+## Tutorial
+
+Los comandos se ejecutan en Bash dentro de DragonOS, desde la carpeta del proyecto. Los bloques pueden copiarse directamente.
+
+### 1. Preparar las carpetas
 
 ```bash
-python3 -m unittest discover -s tests -v
-python3 scripts/analyze.py --help
+mkdir -p ~/proyectos/lte-observatory-sdr-falcon
+cd ~/proyectos/lte-observatory-sdr-falcon
+mkdir -p data/raw data/processed logs figures docs/results
 ```
 
-Para el piloto existente:
+Los programas del repositorio deben estar presentes en `scripts/`. La carpeta `data/raw/` se excluye de Git mediante `.gitignore`.
+
+### 2. Comprobar el equipo y las opciones
 
 ```bash
-python3 scripts/analyze.py \
-  --input data/raw/pilot_20261018_140240/dci.tsv \
-  --console data/raw/pilot_20261018_140240/console.log \
-  --session-label pilot_1970 \
-  --frequency-mhz 1970
+cat /etc/os-release
+python3 --version
+lsusb
+lsusb -t
+command -v FalconEye
+FalconEye -h
 ```
 
-Nueva captura, con GUI cerrada, antena fija y mismo punto:
+`lsusb -t` permite revisar la conexión USB del receptor. La ayuda de FalconEye muestra las opciones admitidas por la versión instalada.
+
+### 3. Explorar la señal
+
+```bash
+FalconGUI
+```
+
+En la interfaz, desmarcar **Use File as Source**, introducir **1970.0 MHz** y pulsar **Start**. Comprobar la recepción y observar las asignaciones. Al terminar, pulsar **Stop** y cerrar la interfaz para liberar el receptor.
+
+Los valores predeterminados de la interfaz no sustituyen los parámetros confirmados durante la adquisición.
+
+### 4. Registrar una sesión
 
 ```bash
 bash scripts/capture.sh 1970 120 P01
 ```
 
-El limite externo de 120 s incluye apertura de radio y busqueda. No equivale a 120 s de senal sincronizada. El script imprime el comando de analisis para esa sesion. Completar `notes.md` antes de comparar sesiones.
+Los argumentos indican frecuencia en MHz, límite total de tiempo en segundos y etiqueta del punto de medición. `P01` permite comparar sesiones tomadas en el mismo lugar.
 
-## Productos
+El programa guarda `dci.tsv`, `console.log`, `metadata.txt`, `stats.txt` y una plantilla `notes.md` dentro de una carpeta nueva en `data/raw/`. Completar la plantilla con la antena, orientación y condiciones de la sesión.
 
-- `data/processed/<sesion>/`: CSV y resumen JSON agregados, sin listas de RNTI ni contenido hexadecimal DCI.
-- `figures/<sesion>/`: graficas SVG de actividad y sensibilidad.
-- `docs/results/<sesion>.md`: reporte generado de los resultados reales y advertencias.
-- `docs/GUIA.md`: instrucciones para documentar y publicar.
+El límite de 120 segundos incluye la apertura del receptor y la búsqueda de celda. No garantiza 120 segundos de señal sincronizada. Al alcanzar ese límite, `timeout` puede devolver el código 124; revisar el cierre en la consola.
 
-Despues de ejecutar el piloto se podran ver las figuras aqui:
+### 5. Revisar y analizar el piloto
 
-![Actividad observada](figures/pilot_1970/activity.svg)
+Para reproducir el análisis de la sesión utilizada en este repositorio:
 
-Los enlaces de resultados se incorporan cuando los archivos existen. No se incluyen resultados sinteticos como si fueran mediciones reales.
+```bash
+PILOT_DIR="$PWD/data/raw/pilot_20261018_140240"
 
-## Metodo e interpretacion
+ls -lh "$PILOT_DIR"
+wc -l "$PILOT_DIR/dci.tsv"
 
-Se validan las 20 columnas del formato DCI documentado por FALCON. Cada ventana resume asignaciones observadas UL/DL, numero de registros e identificadores distintos con un filtro explicito de valores reservados. Ese filtro es operativo y no identifica de forma exhaustiva los tipos de RNTI. El conteo nunca equivale a personas ni al total de equipos conectados.
+python3 scripts/analyze.py \
+    --input "$PILOT_DIR/dci.tsv" \
+    --console "$PILOT_DIR/console.log" \
+    --session-label pilot_1970 \
+    --frequency-mhz 1970 \
+    --window 1
+```
 
-Una ventana sin registros tiene actividad desconocida: no se puede distinguir ausencia real de asignaciones de perdida de observacion solo con DCI. La suma de PRB asignados por unidad de tiempo no es un porcentaje de ocupacion validado. Tampoco representa una medicion de velocidad IP ni permite afirmar congestion.
+La ruta corresponde a un archivo local y no se distribuye en el repositorio. Para otra sesión, cambiar la carpeta de entrada y la etiqueta de salida. El programa de captura imprime el comando correspondiente al terminar.
 
-El experimento de sensibilidad elimina aleatoriamente registros DCI de una copia en memoria, con semilla fija. Mide el efecto de datos faltantes sobre los indicadores. No reproduce necesariamente perdidas de subtramas, errores del receptor, interferencia ni degradacion RF. No es un detector de anomalias entrenado ni demuestra exactitud del decodificador.
+El analizador comprueba la cantidad de campos y valores clave. Las filas inválidas se contabilizan y se excluyen de las gráficas. Si no hay registros válidos, el análisis termina con un error.
 
-## Limitaciones
+### 6. Abrir las gráficas y el informe
 
-- Las metricas dependen de la decodificacion y pueden contener falsos positivos y omisiones.
-- El lapso entre el primer y ultimo registro no mide continuidad de recepcion; los timestamps corresponden al registro del decodificador.
-- Las estadisticas de omision del cierre describen una corrida, no cada ventana.
-- Una sola sesion piloto no demuestra patrones diarios, fallas de una operadora ni fenomenos geofisicos.
-- No se han medido aqui limites absolutos de sensibilidad ni calibrado potencia en dBm.
+```bash
+xdg-open figures/pilot_1970/activity.svg
+xdg-open figures/pilot_1970/mcs.svg
+xdg-open figures/pilot_1970/synthetic_record_removal.svg
+cat docs/results/pilot_1970.md
+```
 
-## Referencias y autoria
+### 7. Comprobar el programa
 
-- [FALCON: proyecto y formato DCI](https://github.com/falkenber9/falcon).
-- [Falkenberg y Wietfeld, FALCON, GLOBECOM 2019](https://arxiv.org/abs/1907.10110).
-- [Bucle y estadisticas de FalconEye](https://github.com/falkenber9/falcon/blob/master/src/eye/EyeCore.cc).
+```bash
+python3 -m unittest discover -s tests -v
+```
 
-FALCON pertenece a sus autores y utiliza AGPLv3. Este proyecto aporta documentacion y scripts externos de analisis; no redistribuye su codigo. El montaje y las capturas son del autor del proyecto. Los scripts de analisis fueron preparados con asistencia de Codex y deben interpretarse junto con sus pruebas y limitaciones.
+Las pruebas utilizan datos sintéticos y comprueban el procesamiento. No requieren SDR ni demuestran por sí solas la exactitud de la recepción.
 
-## Bitacora visual
+## Resultados del piloto
 
-<details>
-<summary>Preparacion del entorno y captura piloto</summary>
+El [resumen publicado](data/processed/pilot_1970/summary.json) contiene:
 
-### Organizacion del proyecto
+| Indicador | Resultado |
+|---|---|
+| Registros válidos | 198 |
+| Filas descartadas | 9; una con cantidad de campos incorrecta |
+| Lapso entre el primer y último registro válido | 120,542 segundos |
+| Suma de PRB de las asignaciones observadas | 4042 |
+| Identificadores distintos tras el filtro operativo | 45 |
+| Ventanas de un segundo con registros | 44 |
 
-![Directorio del proyecto](docs/images/01-workspace.png)
+Estas cifras describen lo decodificado. El lapso temporal no demuestra recepción continua y el conteo de identificadores no representa usuarios únicos.
 
-![Estructura de trabajo](docs/images/02-structure.png)
+### Figura 1. Actividad observada en el tiempo
 
-### Entorno y conexion del receptor
+![Actividad LTE observada](figures/pilot_1970/activity.svg)
 
-![Entorno de adquisicion](docs/images/04-environment.png)
+La figura tiene tres paneles:
 
-![Topologia USB](docs/images/05-usb.png)
+- **Asignaciones de PRB:** suma los bloques de las asignaciones observadas y los expresa por segundo. Un pico indica más recursos registrados en ese intervalo.
+- **Registros DCI:** cuenta los mensajes decodificados dentro de cada ventana.
+- **RNTI observados:** cuenta identificadores distintos después del filtro descrito en el informe.
 
-### Opciones del decodificador
+Los espacios sin trazado indican ventanas sin registros. No se rellenan con cero porque no sabemos si faltó actividad, recepción o decodificación. La primera curva no es un porcentaje de ocupación de la celda ni una medición de velocidad de Internet.
 
-![Ayuda local de FalconEye](docs/images/06-falcon-help.png)
+### Figura 2. Distribución de MCS
 
-### Captura a 1970 MHz
+![Distribución de MCS](figures/pilot_1970/mcs.svg)
 
-![Comando de captura y sintonizacion UHD](docs/images/07-capture-1970.png)
+El eje horizontal muestra los índices MCS y el vertical cuántos registros presentan cada índice. Las dos curvas separan subida y bajada.
 
-</details>
+La figura permite comparar qué índices aparecen con mayor frecuencia. Por sí sola no determina la calidad del canal ni el rendimiento de una conexión. Algunos índices tienen interpretaciones especiales que dependen del formato y contexto LTE.
 
-## Resultados del piloto procesado
+### Figura 3. Sensibilidad a registros faltantes
 
-[Informe de resultados](docs/results/pilot_1970.md)
+![Sensibilidad a registros faltantes](figures/pilot_1970/synthetic_record_removal.svg)
 
-[Resumen JSON](data/processed/pilot_1970/summary.json)
+Se elimina aleatoriamente una parte de los registros ya decodificados, con probabilidades del 10 %, 30 % y 50 %. El escenario del 0 % conserva la referencia original. Una semilla fija permite repetir la misma selección.
 
-### Distribución MCS
+El eje vertical muestra cuántas asignaciones de PRB permanecen en cada escenario. La comparación ilustra cuánto puede cambiar el indicador cuando faltan datos. La fracción efectivamente eliminada puede diferir de la probabilidad indicada, especialmente en muestras pequeñas.
 
-![Distribución MCS](figures/pilot_1970/mcs.svg)
+Esta prueba modifica registros de una copia en memoria. No reproduce directamente pérdidas de subtramas, interferencia ni fallas reales del receptor. Es una exploración de sensibilidad con una sola semilla, no una validación de precisión ni un detector de anomalías.
 
-### Sensibilidad a registros faltantes
+## Archivos de resultados
 
-![Experimento sintético](figures/pilot_1970/synthetic_record_removal.svg)
+| Archivo | Contenido |
+|---|---|
+| [Informe](docs/results/pilot_1970.md) | Resultados, método y advertencias. |
+| [Resumen JSON](data/processed/pilot_1970/summary.json) | Indicadores de la sesión. |
+| [Actividad por ventana](data/processed/pilot_1970/activity.csv) | Asignaciones UL/DL, mensajes e identificadores agregados. |
+| [Distribución MCS](data/processed/pilot_1970/mcs_distribution.csv) | Conteos de cada índice en ambos sentidos. |
+| [Experimento de registros faltantes](data/processed/pilot_1970/synthetic_record_removal.csv) | Valores de cada escenario sintético. |
 
-Las eliminaciones corresponden a registros ya decodificados.
-No representan tasas de error medidas en el enlace de radio.
+## Alcance y limitaciones
+
+El piloto demuestra un procedimiento reproducible para organizar y visualizar registros DCI. La información obtenida depende de la recepción y del decodificador, por lo que puede contener omisiones y falsos positivos.
+
+El filtro de identificadores excluye el valor 0 y los valores desde 65524. Es un filtro operativo, no una clasificación completa de todos los tipos de RNTI. El archivo DCI tampoco permite separar por sí solo baja actividad y falta de observación.
+
+En esta sesión no se extrajo un resumen reconocible de subtramas omitidas desde la consola. Por tanto, no se asigna un porcentaje de omisión al piloto. Un `stats.txt` vacío no demuestra ausencia de errores: hay que revisar `console.log`.
+
+Como ampliación, se propone repetir las mediciones en diferentes horarios manteniendo el mismo montaje y evaluar los métodos con más sesiones y realizaciones aleatorias.
+
+## Referencias
+
+- [FALCON: documentación y formato de registros](https://github.com/falkenber9/falcon).
+- [Artículo de FALCON, GLOBECOM 2019](https://arxiv.org/abs/1907.10110).
+- [Código de adquisición de FalconEye](https://github.com/falkenber9/falcon/blob/master/src/eye/EyeCore.cc).
+
+FALCON se distribuye bajo AGPLv3. Este repositorio incorpora scripts externos de análisis y documentación; no redistribuye el código de FALCON.

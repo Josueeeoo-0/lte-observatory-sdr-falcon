@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Analyze a decoded LTE FALCON DCI log using only the Python standard library.
+"""Analiza un registro DCI LTE FALCON con la biblioteca estándar de Python.
 
-The input schema is 20 whitespace-separated fields per record. Exports contain
-aggregates only: raw hexadecimal payloads and individual RNTIs are never copied.
+Cada registro de entrada contiene 20 campos separados por espacios. Los archivos
+de salida incluyen solo agregados; nunca copian los valores hexadecimales ni RNTI individuales.
 """
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def parse_records(path: Path) -> tuple[list[Record], dict[str, int]]:
                 t = float(cols[0]); sfn = int(cols[1]); sf = int(cols[2])
                 rnti = int(cols[3], 0) if cols[3].lower().startswith("0x") else int(cols[3])
                 direction = int(cols[4]); mcs = int(cols[5]); prb = int(cols[6]); tbs = int(cols[7])
-                # EyeCore's SFN is an incrementing counter; it can exceed the LTE 10-bit frame range.
+                # EyeCore incrementa SFN como contador; puede superar el rango LTE de 10 bits.
                 if not math.isfinite(t) or sfn < 0 or not 0 <= sf <= 9:
                     raise ValueError
                 if not 0 <= rnti <= 65535 or direction not in (0, 1):
@@ -74,7 +74,7 @@ def parse_records(path: Path) -> tuple[list[Record], dict[str, int]]:
 def _slug(label: str) -> str:
     slug = re.sub(r"[^A-Za-z0-9._-]+", "-", label.strip()).strip(".-_")
     if not slug or slug in (".", ".."):
-        raise ValueError("session label must contain letters or numbers")
+        raise ValueError("la etiqueta de sesión debe incluir letras o números")
     return slug[:80]
 
 
@@ -82,7 +82,7 @@ def _safe_under(root: Path, *parts: str) -> Path:
     base = root.resolve()
     dest = base.joinpath(*parts).resolve()
     if dest != base and base not in dest.parents:
-        raise ValueError("output path escapes output root")
+        raise ValueError("la ruta de salida queda fuera de la carpeta de salida")
     return dest
 
 
@@ -113,9 +113,9 @@ def _mcs_counts(records: list[Record]):
 def _write_svg(path: Path, bins: dict, window: float, frequency: float):
     width, height, left, right, top = 1040, 690, 90, 35, 55
     plot_w = width-left-right
-    panels = [("Observed PRB-assignment rate", "PRB assignments / second", "#1769aa"),
-              ("Decoded DCI records", "records / window", "#c65d17"),
-              ("Observed nonreserved RNTIs", "distinct identifiers / window", "#238636")]
+    panels = [("Tasa observada de asignaciones PRB", "Asignaciones PRB por segundo", "#1769aa"),
+              ("Registros DCI decodificados", "Registros por intervalo", "#c65d17"),
+              ("RNTI no reservados observados", "Identificadores distintos por intervalo", "#238636")]
     n = max(1, max(bins, default=0) + 1)
     end = n * window
     maxes = [max([((v["ul_prb_assignments"]+v["dl_prb_assignments"])/window)
@@ -126,7 +126,7 @@ def _write_svg(path: Path, bins: dict, window: float, frequency: float):
     elems = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
              '<rect width="100%" height="100%" fill="#fff"/>',
              '<style>text{font-family:Arial,sans-serif;fill:#182230}.grid{stroke:#d9e0e8;stroke-width:1}.axis{stroke:#425466;stroke-width:1.2}</style>',
-             f'<text x="{left}" y="27" font-size="19" font-weight="bold">LTE FALCON DCI activity · {frequency:g} MHz</text>']
+             f'<text x="{left}" y="27" font-size="19" font-weight="bold">Actividad DCI de LTE FALCON · {frequency:g} MHz</text>']
     panel_h = 166
     for pi, (title, ylabel, color) in enumerate(panels):
         y0 = top + pi*190
@@ -138,7 +138,7 @@ def _write_svg(path: Path, bins: dict, window: float, frequency: float):
             elems.append(f'<text x="{left-9}" y="{y+4:.1f}" text-anchor="end" font-size="10">{maxes[pi]*j/3:.1f}</text>')
         elems.append(f'<line class="axis" x1="{left}" y1="{plot_top}" x2="{left}" y2="{plot_bottom}"/><line class="axis" x1="{left}" y1="{plot_bottom}" x2="{left+plot_w}" y2="{plot_bottom}"/>')
         elems.append(f'<text transform="translate(19 {((plot_top+plot_bottom)/2):.1f}) rotate(-90)" text-anchor="middle" font-size="11">{ylabel}</text>')
-        # Break lines at missing windows so absence is never drawn as zero activity.
+        # Separa las líneas en intervalos ausentes para no dibujar la ausencia como cero.
         segments=[]; current=[]
         for i in range(n):
             b=bins.get(i)
@@ -160,8 +160,8 @@ def _write_svg(path: Path, bins: dict, window: float, frequency: float):
         for xt in range(5):
             value=end*xt/4; x=left+plot_w*xt/4
             elems.append(f'<line class="axis" x1="{x:.1f}" y1="{plot_bottom}" x2="{x:.1f}" y2="{plot_bottom+4}"/><text x="{x:.1f}" y="{plot_bottom+17}" text-anchor="middle" font-size="10">{value:.1f}</text>')
-    elems.append(f'<text x="{left+plot_w/2}" y="669" text-anchor="middle" font-size="11">Seconds from first valid timestamp</text>')
-    elems.append('<text x="90" y="686" font-size="9" fill="#596579">Observed decoded records only · gaps are omitted</text>')
+    elems.append(f'<text x="{left+plot_w/2}" y="669" text-anchor="middle" font-size="11">Segundos desde la primera marca de tiempo válida</text>')
+    elems.append('<text x="90" y="686" font-size="9" fill="#596579">Solo registros decodificados observados · se omiten los intervalos sin datos</text>')
     elems.append('</svg>')
     path.write_text("\n".join(elems), encoding="utf-8")
 
@@ -180,7 +180,7 @@ def _write_mcs_svg(path: Path, counts: dict):
         points.append((direction, color, pts))
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
              '<rect width="100%" height="100%" fill="white"/><style>text{font-family:Arial,sans-serif;fill:#182230}</style>',
-             '<text x="76" y="28" font-size="18" font-weight="bold">Observed decoded-record MCS distribution</text>',
+             '<text x="76" y="28" font-size="18" font-weight="bold">Distribución MCS de registros decodificados observados</text>',
              f'<line x1="{left}" y1="{bottom}" x2="{width-right}" y2="{bottom}" stroke="#425466"/>',
              f'<line x1="{left}" y1="{top}" x2="{left}" y2="{bottom}" stroke="#425466"/>']
     for i in range(4):
@@ -195,8 +195,8 @@ def _write_mcs_svg(path: Path, counts: dict):
         parts.append(f'<polyline points="{poly}" fill="none" stroke="{color}" stroke-width="2"/>')
         label = "UL" if direction == 0 else "DL"
         parts.append(f'<line x1="{720+direction*80}" y1="48" x2="{744+direction*80}" y2="48" stroke="{color}" stroke-width="3"/><text x="{750+direction*80}" y="52" font-size="11">{label}</text>')
-    parts.append('<text x="460" y="382" text-anchor="middle" font-size="11">MCS index</text><text transform="translate(18 195) rotate(-90)" text-anchor="middle" font-size="11">Decoded DCI records</text>')
-    parts.append('<text x="76" y="415" font-size="9">MCS counts describe decoded record labels; they are not a direct channel-quality measurement.</text></svg>')
+    parts.append('<text x="460" y="382" text-anchor="middle" font-size="11">Índice MCS</text><text transform="translate(18 195) rotate(-90)" text-anchor="middle" font-size="11">Registros DCI decodificados</text>')
+    parts.append('<text x="76" y="405" font-size="9">UL: subida · DL: bajada. Los conteos MCS describen etiquetas decodificadas; no miden directamente la calidad del canal.</text></svg>')
     path.write_text("\n".join(parts), encoding="utf-8")
 
 
@@ -204,17 +204,17 @@ def analyze(input_path: Path, label: str, frequency: float, window: float,
             output_root: Path, console_text: str | None = None) -> dict:
     slug = _slug(label)
     if not math.isfinite(frequency) or frequency <= 0 or not math.isfinite(window) or window <= 0:
-        raise ValueError("frequency and window must be positive finite numbers")
+        raise ValueError("la frecuencia y el intervalo deben ser números positivos y finitos")
     records, counts = parse_records(input_path)
     if not records:
-        raise ValueError(f"no valid records found ({counts['invalid_rows']} invalid rows)")
+        raise ValueError(f"no se encontraron registros válidos ({counts['invalid_rows']} filas no válidas)")
     origin=min(r.timestamp for r in records); last=max(r.timestamp for r in records)
     duration=last-origin
     if not math.isfinite(duration):
-        raise ValueError("timestamp span is too large to represent")
+        raise ValueError("el intervalo entre marcas de tiempo es demasiado grande para representarlo")
     window_ratio = duration/window
     if not math.isfinite(window_ratio) or window_ratio > 200000:
-        raise ValueError("timestamp span would create more than 200000 activity windows; increase --window or check the input")
+        raise ValueError("el intervalo crearía más de 200000 ventanas de actividad; aumente --window o revise la entrada")
     window_count = math.floor(window_ratio + 1e-12) + 1
     bins=_aggregate(records, window, origin)
     outroot=output_root.resolve()
@@ -236,17 +236,17 @@ def analyze(input_path: Path, label: str, frequency: float, window: float,
              "valid_rows":counts["valid_rows"],"invalid_rows":counts["invalid_rows"],"schema_errors":counts["schema_errors"],
              "total_lines":counts["total_lines"],"comment_lines":counts["comment_lines"],"blank_lines":counts["blank_lines"],
              "first_timestamp":origin,"last_timestamp":last,"duration_seconds":duration,
-             "sfn_note":"SFN is accepted as a nonnegative counter; EyeCore may increment it beyond the LTE 10-bit frame range.",
+             "sfn_note":"Se acepta SFN como contador no negativo; EyeCore puede incrementarlo más allá del rango LTE de 10 bits.",
              "dci_records":len(records),"total_prb_assignments":total_prb,
              "observed_nonreserved_rnti_count":len({r.rnti for r in records if 0<r.rnti<RESERVED_RNTI_MIN}),
-             "rnti_count_note":"Observed nonreserved identifiers only (RNTI 0 and values >=65524 excluded); this is not a count of all C-RNTIs, devices, or users.",
+             "rnti_count_note":"Solo identificadores no reservados observados (se excluyen RNTI 0 y valores >=65524); no representa todos los C-RNTI, dispositivos ni usuarios.",
              "activity_windows_with_records":len(bins)}
     if "skipped_subframes" in console_stats:
         summary["console_skipped_subframes_run_level"] = console_stats["skipped_subframes"]
     if "skipped_subframe_percent" in console_stats:
         summary["console_skipped_subframe_percent_run_level"] = console_stats["skipped_subframe_percent"]
-    if duration < 120: summary["duration_warning"]="Capture covers less than 120 seconds; duration is computed from valid record timestamps, not the requested run length."
-    if len(records)<100: summary["record_count_warning"]="Fewer than 100 valid decoded DCI records; interpret aggregates cautiously."
+    if duration < 120: summary["duration_warning"]="La captura abarca menos de 120 segundos; la duración se calcula con las marcas de tiempo válidas, no con el tiempo de ejecución solicitado."
+    if len(records)<100: summary["record_count_warning"]="Hay menos de 100 registros DCI decodificados válidos; interprete los agregados con cautela."
     (data_dir/"summary.json").write_text(json.dumps(summary,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     _write_svg(fig_dir/"activity.svg",bins,window,frequency)
     _write_mcs_svg(fig_dir/"mcs.svg",mcs_counts)
@@ -262,29 +262,29 @@ def analyze(input_path: Path, label: str, frequency: float, window: float,
         w=csv.DictWriter(f,fieldnames=list(exp[0])); w.writeheader(); w.writerows(exp)
     _write_loss_svg(fig_dir/"synthetic_record_removal.svg",exp)
     skipped=console_stats.get("skipped_subframes")
-    lines=[f"# LTE FALCON session: {slug}","",f"Decoded DCI log summary for **{frequency:g} MHz**.","",
-           f"- Valid records: {len(records)}; invalid rows: {counts['invalid_rows']} (schema errors: {counts['schema_errors']}).",
-           f"- Timestamp span: {duration:.3f} seconds, from {origin:.6f} to {last:.6f}.",
-           f"- Total observed PRB assignments: {total_prb}; DCI records: {len(records)}.",
-           f"- Distinct observed nonreserved RNTIs: {summary['observed_nonreserved_rnti_count']}. This excludes RNTI 0 and identifiers >=65524, is approximate with respect to reserved identifier usage, and does not classify or count all C-RNTIs, devices, or users.","",
-           "Missing activity windows have no CSV row and are shown as gaps in the chart. PRB assignments are observed decoded grant allocations, not utilization, throughput, congestion, or delivered traffic.","",
-           "## Figures and data","",
-           f"- Activity: [activity.svg](../../figures/{slug}/activity.svg)",
-           f"- MCS distribution: [mcs.svg](../../figures/{slug}/mcs.svg). MCS labels are counts of decoded records, not direct channel-quality measurements.",
-           f"- Window aggregates: [activity.csv](../../data/processed/{slug}/activity.csv)",
-           f"- MCS counts: [mcs_distribution.csv](../../data/processed/{slug}/mcs_distribution.csv)","",
-           "## Synthetic record-removal sensitivity experiment","",
-           "A fixed-seed Bernoulli experiment removes decoded records at the listed rates and compares total PRB assignments with the baseline. This is synthetic missing decoded records, not real subframes, an RF model, or an anomaly detector. Results use one seed and are exploratory, not an accuracy estimate.",
-           f"- [Synthetic record-removal chart](../../figures/{slug}/synthetic_record_removal.svg)",
-           f"- [Synthetic record-removal values](../../data/processed/{slug}/synthetic_record_removal.csv)","",
-           "## Capture notes","",f"Input parsing counted {counts['comment_lines']} comment lines and {counts['blank_lines']} blank lines."]
+    lines=[f"# Sesión LTE FALCON: {slug}","",f"Resumen del registro DCI decodificado en **{frequency:g} MHz**.","",
+           f"- Registros válidos: {len(records)}; filas no válidas: {counts['invalid_rows']} (errores de esquema: {counts['schema_errors']}).",
+           f"- Intervalo de tiempo: {duration:.3f} segundos, desde {origin:.6f} hasta {last:.6f}.",
+           f"- Asignaciones PRB observadas: {total_prb}; registros DCI: {len(records)}.",
+           f"- RNTI no reservados distintos observados: {summary['observed_nonreserved_rnti_count']}. Se excluyen RNTI 0 y valores >=65524. La cifra es aproximada respecto al uso de identificadores reservados y no clasifica ni cuenta todos los C-RNTI, dispositivos o usuarios.","",
+           "Los intervalos sin registros no aparecen en el CSV y se muestran como espacios en blanco en la gráfica. Las asignaciones PRB son concesiones observadas en registros decodificados; no representan utilización, caudal, congestión ni tráfico entregado.","",
+           "## Gráficas y datos","",
+           f"- Actividad: [activity.svg](../../figures/{slug}/activity.svg)",
+           f"- Distribución MCS: [mcs.svg](../../figures/{slug}/mcs.svg). Los valores MCS cuentan registros decodificados y no miden directamente la calidad del canal.",
+           f"- Agregados por intervalo: [activity.csv](../../data/processed/{slug}/activity.csv)",
+           f"- Conteos MCS: [mcs_distribution.csv](../../data/processed/{slug}/mcs_distribution.csv)","",
+           "## Experimento sintético de eliminación de registros","",
+           "Un experimento de Bernoulli con semilla fija elimina registros decodificados en los porcentajes indicados y compara las asignaciones PRB totales con la base. Simula la pérdida de registros decodificados; no representa subtramas reales, un modelo de RF ni un detector de anomalías. Usa una sola semilla y sirve como exploración, no como estimación de precisión.",
+           f"- [Gráfica de eliminación sintética](../../figures/{slug}/synthetic_record_removal.svg)",
+           f"- [Valores de eliminación sintética](../../data/processed/{slug}/synthetic_record_removal.csv)","",
+           "## Notas de captura","",f"El análisis contó {counts['comment_lines']} líneas de comentario y {counts['blank_lines']} líneas vacías."]
     if skipped is not None:
-        lines.append(f"Console summary reported {skipped} skipped subframes for the run as a whole; this is not a per-window count. A reported value of zero is retained as a valid statistic and does not invalidate the capture.")
+        lines.append(f"El resumen de consola informó {skipped} subtramas omitidas en toda la ejecución; no es un conteo por intervalo. El valor cero se conserva como estadística válida y no invalida la captura.")
         if "skipped_subframe_percent" in console_stats:
-            lines.append(f"Console summary also reported {console_stats['skipped_subframe_percent']:g}% skipped subframes for the run as a whole.")
-    else: lines.append("No recognized skipped-subframe summary was supplied from the console.")
-    if "duration_warning" in summary: lines.extend(["", "**Duration note:** "+summary["duration_warning"]])
-    if "record_count_warning" in summary: lines.extend(["", "**Record note:** "+summary["record_count_warning"]])
+            lines.append(f"La consola también informó {console_stats['skipped_subframe_percent']:g}% de subtramas omitidas en toda la ejecución.")
+    else: lines.append("No se proporcionó un resumen reconocido de subtramas omitidas en la consola.")
+    if "duration_warning" in summary: lines.extend(["", "**Nota sobre la duración:** "+summary["duration_warning"]])
+    if "record_count_warning" in summary: lines.extend(["", "**Nota sobre los registros:** "+summary["record_count_warning"]])
     (docs_dir/f"{slug}.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
     summary["outputs"]={"summary":str(data_dir/"summary.json"),"activity_csv":str(data_dir/"activity.csv"),"activity_svg":str(fig_dir/"activity.svg"),"report":str(docs_dir/f"{slug}.md")}
     return summary
@@ -296,12 +296,12 @@ def _write_loss_svg(path: Path, rows: list[dict]):
         pts.append((100+750*r["synthetic_record_removal_percent"]/50,250-180*v/mx))
     poly=" ".join(f"{x},{y:.1f}" for x,y in pts)
     s=['<svg xmlns="http://www.w3.org/2000/svg" width="900" height="330" viewBox="0 0 900 330"><rect width="100%" height="100%" fill="white"/>',
-       '<style>text{font-family:Arial,sans-serif;fill:#182230}</style><text x="80" y="30" font-size="18" font-weight="bold">Synthetic decoded-record removal sensitivity</text>',
+       '<style>text{font-family:Arial,sans-serif;fill:#182230}</style><text x="80" y="30" font-size="18" font-weight="bold">Sensibilidad a la eliminación sintética de registros decodificados</text>',
        '<line x1="80" y1="250" x2="850" y2="250" stroke="#425466"/><line x1="80" y1="55" x2="80" y2="250" stroke="#425466"/>',
        f'<polyline points="{poly}" fill="none" stroke="#7952a3" stroke-width="3"/>']
     for (x,y),r in zip(pts,rows):
         s.append(f'<circle cx="{x}" cy="{y:.1f}" r="5" fill="#7952a3"/><text x="{x}" y="272" text-anchor="middle" font-size="12">{r["synthetic_record_removal_percent"]}%</text><text x="{x}" y="{y-10:.1f}" text-anchor="middle" font-size="11">{r["total_prb_assignments"]}</text>')
-    s.append('<text x="465" y="308" text-anchor="middle" font-size="12">Synthetic decoded record removal</text><text transform="translate(22 160) rotate(-90)" text-anchor="middle" font-size="12">Total PRB assignments retained</text></svg>')
+    s.append('<text x="465" y="308" text-anchor="middle" font-size="12">Eliminación sintética de registros decodificados (%)</text><text transform="translate(22 160) rotate(-90)" text-anchor="middle" font-size="12">Asignaciones PRB totales conservadas</text></svg>')
     path.write_text("\n".join(s),encoding="utf-8")
 
 
@@ -326,14 +326,37 @@ def _parse_console(text: str) -> int | None:
     return _parse_console_stats(text).get("skipped_subframes")
 
 
+class SpanishArgumentParser(argparse.ArgumentParser):
+    def format_usage(self):
+        return super().format_usage().replace("usage:", "uso:")
+
+    def format_help(self):
+        return super().format_help().replace("usage:", "uso:").replace("options:", "opciones:")
+
+    def error(self, message):
+        if message.startswith("the following arguments are required:"):
+            message = "faltan los argumentos obligatorios:" + message.split(":", 1)[1]
+        elif message.startswith("unrecognized arguments:"):
+            message = "argumentos no reconocidos:" + message.split(":", 1)[1]
+        elif "invalid float value:" in message:
+            option = message.split(":", 1)[0]
+            message = f"{option}: se esperaba un número decimal"
+        elif "expected one argument" in message:
+            option = message.split(":", 1)[0]
+            message = f"{option}: falta un valor"
+        self.print_usage(sys.stderr)
+        self.exit(2, f"{self.prog}: error: {message}\n")
+
+
 def main(argv=None) -> int:
-    p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--input",required=True,type=Path)
-    p.add_argument("--session-label",required=True)
-    p.add_argument("--frequency-mhz",type=float,default=1970)
-    p.add_argument("--window",type=float,default=1)
-    p.add_argument("--output-root",type=Path,default=Path("."))
-    p.add_argument("--console",type=Path,help="Optional saved console summary text")
+    p=SpanishArgumentParser(description=__doc__, add_help=False)
+    p.add_argument("-h", "--help", action="help", help="Mostrar este mensaje de ayuda y salir")
+    p.add_argument("--input",required=True,type=Path,help="Archivo con registros DCI decodificados")
+    p.add_argument("--session-label",required=True,help="Etiqueta para los archivos de salida")
+    p.add_argument("--frequency-mhz",type=float,default=1970,help="Frecuencia en MHz (por defecto: 1970)")
+    p.add_argument("--window",type=float,default=1,help="Duración de cada intervalo en segundos (por defecto: 1)")
+    p.add_argument("--output-root",type=Path,default=Path("."),help="Carpeta raíz de los archivos generados (por defecto: carpeta actual)")
+    p.add_argument("--console",type=Path,help="Archivo opcional con el resumen de consola")
     a=p.parse_args(argv)
     try:
         console=a.console.read_text(encoding="utf-8",errors="replace") if a.console else None

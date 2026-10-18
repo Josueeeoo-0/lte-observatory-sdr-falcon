@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1040" height="690" viewBox="0 0 1040 690">
 <rect width="100%" height="100%" fill="#fff"/>
 <style>text{font-family:Arial,sans-serif;fill:#182230}.grid{stroke:#d9e0e8;stroke-width:1}.axis{stroke:#425466;stroke-width:1.2}</style>
-<text x="90" y="27" font-size="19" font-weight="bold">LTE FALCON DCI activity · 1970 MHz</text>
-<text x="90" y="69" font-size="14" font-weight="bold">Observed PRB-assignment rate</text>
+<text x="90" y="27" font-size="19" font-weight="bold">Actividad DCI de LTE FALCON · 1970 MHz</text>
+<text x="90" y="69" font-size="14" font-weight="bold">Tasa observada de asignaciones PRB</text>
 <line class="grid" x1="90" y1="191.0" x2="1005" y2="191.0"/>
 <text x="81" y="195.0" text-anchor="end" font-size="10">0.0</text>
 <line class="grid" x1="90" y1="153.0" x2="1005" y2="153.0"/>
@@ -12,7 +12,7 @@
 <line class="grid" x1="90" y1="77.0" x2="1005" y2="77.0"/>
 <text x="81" y="81.0" text-anchor="end" font-size="10">663.0</text>
 <line class="axis" x1="90" y1="77" x2="90" y2="191"/><line class="axis" x1="90" y1="191" x2="1005" y2="191"/>
-<text transform="translate(19 134.0) rotate(-90)" text-anchor="middle" font-size="11">PRB assignments / second</text>
+<text transform="translate(19 134.0) rotate(-90)" text-anchor="middle" font-size="11">Asignaciones PRB por segundo</text>
 <polyline points="93.78,110.01 101.34,185.15 108.90,190.48 116.47,127.38 124.03,177.59 131.59,163.66 139.15,77.00 146.71,142.68 154.28,181.54 161.84,180.34 169.40,189.80 176.96,188.59 184.52,185.84 192.09,183.09 199.65,186.53 207.21,171.23 214.77,188.76 222.33,168.65" fill="none" stroke="#1769aa" stroke-width="2.2"/>
 <circle cx="547.50" cy="189.45" r="3" fill="#1769aa"/>
 <polyline points="691.18,183.61 698.74,189.80 706.30,186.70 713.86,184.81" fill="none" stroke="#1769aa" stroke-width="2.2"/>
@@ -25,7 +25,7 @@
 <line class="axis" x1="547.5" y1="191" x2="547.5" y2="195"/><text x="547.5" y="208" text-anchor="middle" font-size="10">60.5</text>
 <line class="axis" x1="776.2" y1="191" x2="776.2" y2="195"/><text x="776.2" y="208" text-anchor="middle" font-size="10">90.8</text>
 <line class="axis" x1="1005.0" y1="191" x2="1005.0" y2="195"/><text x="1005.0" y="208" text-anchor="middle" font-size="10">121.0</text>
-<text x="90" y="259" font-size="14" font-weight="bold">Decoded DCI records</text>
+<text x="90" y="259" font-size="14" font-weight="bold">Registros DCI decodificados</text>
 <line class="grid" x1="90" y1="381.0" x2="1005" y2="381.0"/>
 <text x="81" y="385.0" text-anchor="end" font-size="10">0.0</text>
 <line class="grid" x1="90" y1="343.0" x2="1005" y2="343.0"/>
@@ -35,7 +35,7 @@
 <line class="grid" x1="90" y1="267.0" x2="1005" y2="267.0"/>
 <text x="81" y="271.0" text-anchor="end" font-size="10">22.0</text>
 <line class="axis" x1="90" y1="267" x2="90" y2="381"/><line class="axis" x1="90" y1="381" x2="1005" y2="381"/>
-<text transform="translate(19 324.0) rotate(-90)" text-anchor="middle" font-size="11">records / window</text>
+<text transform="translate(19 324.0) rotate(-90)" text-anchor="middle" font-size="11">Registros por intervalo</text>
 <polyline points="93.78,267.00 101.34,370.64 108.90,375.82 116.47,298.09 124.03,349.91 131.59,355.09 139.15,298.09 146.71,292.91 154.28,370.64 161.84,360.27 169.40,375.82 176.96,370.64 184.52,365.45 192.09,365.45 199.65,375.82 207.21,365.45 214.77,370.64 222.33,355.09" fill="none" stroke="#c65d17" stroke-width="2.2"/>
 <circle cx="547.50" cy="375.82" r="3" fill="#c65d17"/>
 <polyline points="691.18,370.64 698.74,375.82 706.30,375.82 713.86,365.45" fill="none" stroke="#c65d17" stroke-width="2.2"/>
@@ -48,7 +48,7 @@
 <line class="axis" x1="547.5" y1="381" x2="547.5" y2="385"/><text x="547.5" y="398" text-anchor="middle" font-size="10">60.5</text>
 <line class="axis" x1="776.2" y1="381" x2="776.2" y2="385"/><text x="776.2" y="398" text-anchor="middle" font-size="10">90.8</text>
 <line class="axis" x1="1005.0" y1="381" x2="1005.0" y2="385"/><text x="1005.0" y="398" text-anchor="middle" font-size="10">121.0</text>
-<text x="90" y="449" font-size="14" font-weight="bold">Observed nonreserved RNTIs</text>
+<text x="90" y="449" font-size="14" font-weight="bold">RNTI no reservados observados</text>
 <line class="grid" x1="90" y1="571.0" x2="1005" y2="571.0"/>
 <text x="81" y="575.0" text-anchor="end" font-size="10">0.0</text>
 <line class="grid" x1="90" y1="533.0" x2="1005" y2="533.0"/>
@@ -58,7 +58,7 @@
 <line class="grid" x1="90" y1="457.0" x2="1005" y2="457.0"/>
 <text x="81" y="461.0" text-anchor="end" font-size="10">9.0</text>
 <line class="axis" x1="90" y1="457" x2="90" y2="571"/><line class="axis" x1="90" y1="571" x2="1005" y2="571"/>
-<text transform="translate(19 514.0) rotate(-90)" text-anchor="middle" font-size="11">distinct identifiers / window</text>
+<text transform="translate(19 514.0) rotate(-90)" text-anchor="middle" font-size="11">Identificadores distintos por intervalo</text>
 <polyline points="93.78,507.67 101.34,545.67 108.90,558.33 116.47,533.00 124.03,520.33 131.59,533.00 139.15,533.00 146.71,482.33 154.28,545.67 161.84,520.33 169.40,558.33 176.96,545.67 184.52,533.00 192.09,545.67 199.65,558.33 207.21,558.33 214.77,545.67 222.33,533.00" fill="none" stroke="#238636" stroke-width="2.2"/>
 <circle cx="547.50" cy="558.33" r="3" fill="#238636"/>
 <polyline points="691.18,545.67 698.74,558.33 706.30,558.33 713.86,533.00" fill="none" stroke="#238636" stroke-width="2.2"/>
@@ -71,6 +71,6 @@
 <line class="axis" x1="547.5" y1="571" x2="547.5" y2="575"/><text x="547.5" y="588" text-anchor="middle" font-size="10">60.5</text>
 <line class="axis" x1="776.2" y1="571" x2="776.2" y2="575"/><text x="776.2" y="588" text-anchor="middle" font-size="10">90.8</text>
 <line class="axis" x1="1005.0" y1="571" x2="1005.0" y2="575"/><text x="1005.0" y="588" text-anchor="middle" font-size="10">121.0</text>
-<text x="547.5" y="669" text-anchor="middle" font-size="11">Seconds from first valid timestamp</text>
-<text x="90" y="686" font-size="9" fill="#596579">Observed decoded records only · gaps are omitted</text>
+<text x="547.5" y="669" text-anchor="middle" font-size="11">Segundos desde la primera marca de tiempo válida</text>
+<text x="90" y="686" font-size="9" fill="#596579">Solo registros decodificados observados · se omiten los intervalos sin datos</text>
 </svg>

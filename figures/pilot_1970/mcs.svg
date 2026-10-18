@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="920" height="430" viewBox="0 0 920 430">
 <rect width="100%" height="100%" fill="white"/><style>text{font-family:Arial,sans-serif;fill:#182230}</style>
-<text x="76" y="28" font-size="18" font-weight="bold">Observed decoded-record MCS distribution</text>
+<text x="76" y="28" font-size="18" font-weight="bold">Distribución MCS de registros decodificados observados</text>
 <line x1="76" y1="330" x2="896" y2="330" stroke="#425466"/>
 <line x1="76" y1="55" x2="76" y2="330" stroke="#425466"/>
 <line x1="76" y1="330.0" x2="896" y2="330.0" stroke="#d9e0e8"/><text x="68" y="334.0" text-anchor="end" font-size="10">0.0</text>
@@ -27,5 +27,5 @@
 <line x1="720" y1="48" x2="744" y2="48" stroke="#1769aa" stroke-width="3"/><text x="750" y="52" font-size="11">UL</text>
 <polyline points="76.0,207.8 102.5,192.5 128.9,268.9 155.4,55.0 181.8,223.1 208.3,284.2 234.7,253.6 261.2,131.4 287.6,268.9 314.1,268.9 340.5,299.4 367.0,314.7 393.4,207.8 419.9,268.9 446.3,299.4 472.8,330.0 499.2,284.2 525.7,299.4 552.1,299.4 578.6,284.2 605.0,253.6 631.5,299.4 657.9,299.4 684.4,299.4 710.8,284.2 737.3,268.9 763.7,299.4 790.2,284.2 816.6,330.0 843.1,238.3 869.5,192.5 896.0,330.0" fill="none" stroke="#c65d17" stroke-width="2"/>
 <line x1="800" y1="48" x2="824" y2="48" stroke="#c65d17" stroke-width="3"/><text x="830" y="52" font-size="11">DL</text>
-<text x="460" y="382" text-anchor="middle" font-size="11">MCS index</text><text transform="translate(18 195) rotate(-90)" text-anchor="middle" font-size="11">Decoded DCI records</text>
-<text x="76" y="415" font-size="9">MCS counts describe decoded record labels; they are not a direct channel-quality measurement.</text></svg>
+<text x="460" y="382" text-anchor="middle" font-size="11">Índice MCS</text><text transform="translate(18 195) rotate(-90)" text-anchor="middle" font-size="11">Registros DCI decodificados</text>
+<text x="76" y="405" font-size="9">UL: subida · DL: bajada. Los conteos MCS describen etiquetas decodificadas; no miden directamente la calidad del canal.</text></svg>

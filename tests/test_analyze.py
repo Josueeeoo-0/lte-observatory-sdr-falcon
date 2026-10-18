@@ -71,12 +71,21 @@ class AnalyzeTests(unittest.TestCase):
         self.assertEqual([int(r["synthetic_record_removal_percent"]) for r in rows], [0, 10, 30, 50])
         self.assertEqual(int(rows[0]["change_from_baseline_prb_assignments"]), 0)
         report = (out / "docs" / "results" / "trial.md").read_text(encoding="utf-8")
-        self.assertIn("not real subframes", report)
+        self.assertIn("no representa subtramas reales", report)
+        self.assertIn("## Gráficas y datos", report)
+        self.assertIn("Registros válidos", report)
         self.assertNotIn("deadbeef", report)
+        activity = (out / "figures" / "trial" / "activity.svg").read_text(encoding="utf-8")
+        self.assertIn("Actividad DCI de LTE FALCON", activity)
+        self.assertIn("Asignaciones PRB por segundo", activity)
+        summary = json.loads((out / "data" / "processed" / "trial" / "summary.json").read_text(encoding="utf-8"))
+        self.assertEqual(summary["dci_records"], 80)
+        self.assertEqual(summary["total_prb_assignments"], sum((i % 8) + 1 for i in range(80)))
+        self.assertIn("menos de 120 segundos", summary["duration_warning"])
 
     def test_no_valid_records_is_error_and_console_zero_is_accepted(self):
         self.write("wrong schema\n")
-        with self.assertRaisesRegex(ValueError, "no valid records"):
+        with self.assertRaisesRegex(ValueError, "no se encontraron registros válidos"):
             analyze.analyze(self.input, "x", 1970, 1, self.root / "out")
         self.assertEqual(analyze._parse_console("Skipped subframes: 0"), 0)
 
@@ -103,7 +112,7 @@ class AnalyzeTests(unittest.TestCase):
 
     def test_rejects_timestamp_span_that_would_create_excessive_windows(self):
         self.write(row("0") + "\n" + row("200001") + "\n")
-        with self.assertRaisesRegex(ValueError, "200000 activity windows"):
+        with self.assertRaisesRegex(ValueError, "200000 ventanas de actividad"):
             analyze.analyze(self.input, "long", 1970, 1, self.root / "out")
 
     def test_label_is_safely_slugged_inside_output_tree(self):
