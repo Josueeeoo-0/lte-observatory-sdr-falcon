@@ -1,0 +1,5 @@
+synthetic_record_removal_percent,retained_records,total_prb_assignments,change_from_baseline_prb_assignments,change_from_baseline_percent
+0,198,4042,0,0.0
+10,174,3586,-456,-11.28154379020287
+30,128,2839,-1203,-29.7624938149431
+50,95,2225,-1817,-44.95299356754082

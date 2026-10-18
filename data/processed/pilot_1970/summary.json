@@ -1,0 +1,21 @@
+{
+  "session_label": "pilot_1970",
+  "session_slug": "pilot_1970",
+  "frequency_mhz": 1970.0,
+  "window_seconds": 1.0,
+  "valid_rows": 198,
+  "invalid_rows": 9,
+  "schema_errors": 1,
+  "total_lines": 207,
+  "comment_lines": 0,
+  "blank_lines": 0,
+  "first_timestamp": 1792351007.06203,
+  "last_timestamp": 1792351127.603714,
+  "duration_seconds": 120.54168391227722,
+  "sfn_note": "SFN is accepted as a nonnegative counter; EyeCore may increment it beyond the LTE 10-bit frame range.",
+  "dci_records": 198,
+  "total_prb_assignments": 4042,
+  "observed_nonreserved_rnti_count": 45,
+  "rnti_count_note": "Observed nonreserved identifiers only (RNTI 0 and values >=65524 excluded); this is not a count of all C-RNTIs, devices, or users.",
+  "activity_windows_with_records": 44
+}

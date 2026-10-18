@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="330" viewBox="0 0 900 330"><rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#182230}</style><text x="80" y="30" font-size="18" font-weight="bold">Synthetic decoded-record removal sensitivity</text>
+<line x1="80" y1="250" x2="850" y2="250" stroke="#425466"/><line x1="80" y1="55" x2="80" y2="250" stroke="#425466"/>
+<polyline points="100.0,70.0 250.0,90.3 550.0,123.6 850.0,150.9" fill="none" stroke="#7952a3" stroke-width="3"/>
+<circle cx="100.0" cy="70.0" r="5" fill="#7952a3"/><text x="100.0" y="272" text-anchor="middle" font-size="12">0%</text><text x="100.0" y="60.0" text-anchor="middle" font-size="11">4042</text>
+<circle cx="250.0" cy="90.3" r="5" fill="#7952a3"/><text x="250.0" y="272" text-anchor="middle" font-size="12">10%</text><text x="250.0" y="80.3" text-anchor="middle" font-size="11">3586</text>
+<circle cx="550.0" cy="123.6" r="5" fill="#7952a3"/><text x="550.0" y="272" text-anchor="middle" font-size="12">30%</text><text x="550.0" y="113.6" text-anchor="middle" font-size="11">2839</text>
+<circle cx="850.0" cy="150.9" r="5" fill="#7952a3"/><text x="850.0" y="272" text-anchor="middle" font-size="12">50%</text><text x="850.0" y="140.9" text-anchor="middle" font-size="11">2225</text>
+<text x="465" y="308" text-anchor="middle" font-size="12">Synthetic decoded record removal</text><text transform="translate(22 160) rotate(-90)" text-anchor="middle" font-size="12">Total PRB assignments retained</text></svg>
